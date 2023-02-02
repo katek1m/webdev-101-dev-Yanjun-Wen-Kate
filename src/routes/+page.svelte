@@ -1,7 +1,21 @@
 <script>
-    import { currentUser } from '$lib/pocketbase';
+    import { currentUser, pb } from '$lib/pocketbase';
 
     let caption = '';
+    const formData = new FormData();
+
+    const handleFileChange = (event) => {
+        for (let file of event?.target?.files) {
+            formData.append('photo', file);
+        }
+    };
+
+    const handleCreatePost = async() => {
+        formData.append('caption', caption);
+        formData.append('user', $currentUser.id);
+        await pb.collection('posts').create(formData);
+        caption = '';
+    }
 </script>
 
 {#if $currentUser}
@@ -21,8 +35,11 @@
                 </label>
                 <textarea class="textarea textarea-bordered h-24" bind:value={caption}></textarea>
             </div>
-                <input type="file" class="file-input file-input-bordered w-full max-w-xs" />
-                <button class="btn btn-block btn-primary">Create post</button>
+                <input type="file" class="file-input file-input-bordered w-full max-w-xs" 
+                on:change={handleFileChange}
+                />
+                <label for="my-modal-4" class="btn btn-block btn-primary" on:click={handleCreatePost}>Create post                
+                </label>
         </div>
         </label>
     </label>
